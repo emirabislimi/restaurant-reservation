@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maison &middot; Table Reservations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum:#1d1320; --plum-2:#271826; --line:rgba(214,182,140,.18);
+    --brass:#d9a85f; --brass-soft:#e9c489; --ivory:#f4ece0; --muted:#b6a596;
+    --ok:#7fae7a; --err:#d98a7a; --radius:14px;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 80% -10%, #2c1b2c 0%, transparent 60%),
+      var(--plum);
+    color:var(--ivory); font-family:"Inter",system-ui,sans-serif; line-height:1.5;
+    min-height:100vh;
+  }
+  a{color:var(--brass-soft)}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:500; letter-spacing:.2px; margin:0}
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:1.1rem clamp(1rem,4vw,3rem); border-bottom:1px solid var(--line);
+    position:sticky; top:0; backdrop-filter:blur(10px);
+    background:rgba(20,12,20,.72); z-index:10;
+  }
+  .brand{display:flex; align-items:baseline; gap:.6rem}
+  .brand .mark{font-family:"Fraunces"; font-size:1.55rem; color:var(--brass)}
+  .brand small{color:var(--muted); letter-spacing:.32em; text-transform:uppercase; font-size:.62rem}
+  .api-bar{display:flex; align-items:center; gap:.5rem; font-size:.8rem; color:var(--muted)}
+  .api-bar input{width:min(46vw,260px)}
+  .who{display:flex; align-items:center; gap:.75rem; font-size:.85rem}
+  .pill{padding:.18rem .6rem; border:1px solid var(--line); border-radius:999px; color:var(--brass-soft); font-size:.72rem; text-transform:uppercase; letter-spacing:.12em}
+  main{max-width:1060px; margin:0 auto; padding:clamp(1.2rem,4vw,2.6rem) clamp(1rem,4vw,2rem) 4rem}
+  .hero{margin:1rem 0 2.2rem}
+  .hero h1{font-size:clamp(2.1rem,6vw,3.4rem); line-height:1.05}
+  .hero .accent{color:var(--brass)}
+  .hero p{color:var(--muted); max-width:46ch; margin-top:.8rem}
+
+  .grid{display:grid; gap:1.2rem}
+  @media(min-width:820px){ .grid.two{grid-template-columns:1fr 1fr} }
+  .card{
+    background:linear-gradient(180deg,var(--plum-2),#21131f);
+    border:1px solid var(--line); border-radius:var(--radius); padding:1.4rem;
+    box-shadow:var(--shadow);
+  }
+  .card h2{font-size:1.3rem; margin-bottom:.2rem}
+  .card .sub{color:var(--muted); font-size:.85rem; margin-bottom:1rem}
+
+  label{display:block; font-size:.74rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:.7rem 0 .3rem}
+  input,select{
+    width:100%; padding:.62rem .7rem; border-radius:10px; border:1px solid var(--line);
+    background:rgba(0,0,0,.25); color:var(--ivory); font:inherit; font-size:.92rem;
+  }
+  input:focus,select:focus{outline:2px solid var(--brass); outline-offset:1px; border-color:transparent}
+  .row{display:flex; gap:.7rem; flex-wrap:wrap}
+  .row > *{flex:1; min-width:120px}
+
+  button{
+    font:inherit; cursor:pointer; border-radius:10px; border:1px solid transparent;
+    padding:.62rem 1.1rem; font-weight:600; transition:transform .08s ease, filter .15s ease;
+  }
+  button:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(180deg,var(--brass-soft),var(--brass)); color:#2a1a12}
+  .btn-primary:hover{filter:brightness(1.06)}
+  .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--ivory)}
+  .btn-ghost:hover{border-color:var(--brass)}
+  .btn-danger{background:transparent; border:1px solid var(--err); color:var(--err); padding:.4rem .8rem; font-size:.82rem}
+  .btn-danger:hover{background:rgba(217,138,122,.12)}
+  .tabs{display:flex; gap:.4rem; flex-wrap:wrap; margin:0 0 1.4rem}
+  .tabs button{background:transparent; border:1px solid var(--line); color:var(--muted); padding:.45rem .9rem; font-weight:500}
+  .tabs button.active{color:#2a1a12; background:var(--brass); border-color:var(--brass)}
+
+  table{width:100%; border-collapse:collapse; font-size:.9rem}
+  th,td{text-align:left; padding:.6rem .5rem; border-bottom:1px solid var(--line)}
+  th{color:var(--muted); font-weight:500; font-size:.72rem; text-transform:uppercase; letter-spacing:.1em}
+  .status{font-size:.72rem; padding:.16rem .55rem; border-radius:999px; border:1px solid var(--line)}
+  .status.Confirmed{color:var(--ok); border-color:rgba(127,174,122,.5)}
+  .status.Cancelled{color:var(--err); border-color:rgba(217,138,122,.5)}
+  .status.Pending,.status.Completed{color:var(--brass-soft)}
+
+  .toast{
+    position:fixed; left:50%; bottom:1.4rem; transform:translateX(-50%);
+    padding:.7rem 1.1rem; border-radius:10px; font-size:.9rem; z-index:50;
+    box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s;
+    border:1px solid var(--line); background:#2a1a26; max-width:90vw;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-color:rgba(127,174,122,.6)}
+  .toast.err{border-color:rgba(217,138,122,.6)}
+  .hidden{display:none !important}
+  .empty{color:var(--muted); font-size:.9rem; padding:.8rem 0}
+  .tag{display:inline-block; font-size:.72rem; color:var(--muted); border:1px solid var(--line); padding:.12rem .5rem; border-radius:999px; margin-left:.4rem}
+  footer{color:var(--muted); font-size:.78rem; text-align:center; padding:2rem 1rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="mark">Maison</span>
+    <small>Reservations</small>
+  </div>
+  <div class="api-bar">
+    <span>API</span>
+    <input id="apiBase" value="http://localhost:5080" spellcheck="false" />
+  </div>
+  <div class="who" id="who"></div>
+</header>
+
+<main>
+  <!-- LOGGED OUT -->
+  <section id="authView">
+    <div class="hero">
+      <h1>An evening table,<br><span class="accent">reserved in seconds.</span></h1>
+      <p>Sign in to browse the room, book your table, and manage your reservations. New here? Create an account &mdash; it takes a moment.</p>
+    </div>
+    <div class="grid two">
+      <div class="card">
+        <h2>Sign in</h2>
+        <p class="sub">Welcome back.</p>
+        <label for="liEmail">Email</label>
+        <input id="liEmail" type="email" placeholder="you@example.com" />
+        <label for="liPass">Password</label>
+        <input id="liPass" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" />
+        <div style="margin-top:1.1rem"><button class="btn-primary" onclick="login()">Sign in</button></div>
+        <p class="sub" style="margin-top:1rem">Seeded admin: <code>admin@restaurant.local</code> / <code>Admin123!</code></p>
+      </div>
+      <div class="card">
+        <h2>Create account</h2>
+        <p class="sub">Join as a guest.</p>
+        <label for="rgName">Full name</label>
+        <input id="rgName" placeholder="Jane Doe" />
+        <label for="rgEmail">Email</label>
+        <input id="rgEmail" type="email" placeholder="you@example.com" />
+        <label for="rgPass">Password</label>
+        <input id="rgPass" type="password" placeholder="at least 6 characters" />
+        <div style="margin-top:1.1rem"><button class="btn-ghost" onclick="register()">Create account</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGGED IN -->
+  <section id="appView" class="hidden">
+    <div class="tabs" id="tabs">
+      <button data-tab="book" class="active" onclick="setTab('book')">Book a table</button>
+      <button data-tab="mine" onclick="setTab('mine')">My reservations</button>
+      <button data-tab="tables" onclick="setTab('tables')">The room</button>
+      <button data-tab="admin" id="adminTab" onclick="setTab('admin')">Manage (admin)</button>
+    </div>
+
+    <!-- BOOK -->
+    <div id="tab-book" class="tabpane grid two">
+      <div class="card">
+        <h2>Find me a table</h2>
+        <p class="sub">We&rsquo;ll pick the best available table for your party.</p>
+        <label>Date &amp; time</label>
+        <input id="autoWhen" type="datetime-local" />
+        <div class="row">
+          <div><label>Party size</label><input id="autoParty" type="number" min="1" value="2" /></div>
+          <div><label>Duration (min)</label><input id="autoDur" type="number" min="15" value="90" /></div>
+          <div><label>Area</label>
+            <select id="autoLoc"><option value="">Any</option><option>Indoor</option><option>Patio</option><option>Private Room</option></select>
+          </div>
+        </div>
+        <div style="margin-top:1.1rem"><button class="btn-primary" onclick="autoReserve()">Reserve best table</button></div>
+      </div>
+      <div class="card">
+        <h2>Pick a specific table</h2>
+        <p class="sub">Choose from available tables in the room.</p>
+        <label>Table</label>
+        <select id="specTable"></select>
+        <label>Date &amp; time</label>
+        <input id="specWhen" type="datetime-local" />
+        <div class="row">
+          <div><label>Party size</label><input id="specParty" type="number" min="1" value="2" /></div>
+          <div><label>Duration (min)</label><input id="specDur" type="number" min="15" value="90" /></div>
+        </div>
+        <div style="margin-top:1.1rem"><button class="btn-ghost" onclick="reserveSpecific()">Reserve this table</button></div>
+      </div>
+    </div>
+
+    <!-- MINE -->
+    <div id="tab-mine" class="tabpane hidden">
+      <div class="card">
+        <h2>My reservations</h2>
+        <p class="sub">Upcoming and past bookings tied to your account.</p>
+        <div id="mineBody"></div>
+      </div>
+    </div>
+
+    <!-- TABLES -->
+    <div id="tab-tables" class="tabpane hidden">
+      <div class="card">
+        <h2>The room</h2>
+        <p class="sub">Every table currently in the restaurant.</p>
+        <div id="tablesBody"></div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="tab-admin" class="tabpane hidden grid two">
+      <div class="card">
+        <h2>Add a table</h2>
+        <p class="sub">Admin only.</p>
+        <div class="row">
+          <div><label>Number</label><input id="ntNum" type="number" min="1" /></div>
+          <div><label>Capacity</label><input id="ntCap" type="number" min="1" value="4" /></div>
+        </div>
+        <label>Location</label>
+        <select id="ntLoc"><option>Indoor</option><option>Patio</option><option>Private Room</option></select>
+        <div style="margin-top:1.1rem"><button class="btn-primary" onclick="createTable()">Add table</button></div>
+      </div>
+      <div class="card">
+        <h2>All reservations</h2>
+        <p class="sub">Every booking across all guests.</p>
+        <div id="allResBody"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<footer>Maison &middot; Service Oriented Architecture project demo</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const state = { token: localStorage.getItem('rr_token') || null, user: JSON.parse(localStorage.getItem('rr_user') || 'null') };
+const api = () => $('apiBase').value.replace(/\/+$/,'');
+
+function toast(msg, kind='ok'){
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show ' + kind;
+  setTimeout(()=> t.className = 'toast', 2800);
+}
+
+async function call(path, { method='GET', body=null, auth=true } = {}){
+  const headers = { 'Content-Type':'application/json' };
+  if(auth && state.token) headers['Authorization'] = 'Bearer ' + state.token;
+  const res = await fetch(api() + path, { method, headers, body: body ? JSON.stringify(body) : null });
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  if(!res.ok) throw new Error(data?.title || ('Request failed (' + res.status + ')'));
+  return data;
+}
+
+// ---------- Auth ----------
+async function register(){
+  try{
+    const dto = { fullName:$('rgName').value, email:$('rgEmail').value, password:$('rgPass').value };
+    const r = await call('/api/auth/register', { method:'POST', body:dto, auth:false });
+    onAuth(r); toast('Welcome, ' + r.fullName + '!');
+  }catch(e){ toast(e.message,'err'); }
+}
+async function login(){
+  try{
+    const dto = { email:$('liEmail').value, password:$('liPass').value };
+    const r = await call('/api/auth/login', { method:'POST', body:dto, auth:false });
+    onAuth(r); toast('Signed in.');
+  }catch(e){ toast(e.message,'err'); }
+}
+function onAuth(r){
+  state.token = r.token; state.user = r;
+  localStorage.setItem('rr_token', r.token);
+  localStorage.setItem('rr_user', JSON.stringify(r));
+  render();
+}
+function logout(){
+  state.token = null; state.user = null;
+  localStorage.removeItem('rr_token'); localStorage.removeItem('rr_user');
+  render();
+}
+
+// ---------- Render ----------
+function render(){
+  const authed = !!state.token;
+  $('authView').classList.toggle('hidden', authed);
+  $('appView').classList.toggle('hidden', !authed);
+  const who = $('who');
+  if(authed){
+    who.innerHTML = `<span class="pill">${state.user.role}</span>
+      <span>${state.user.fullName}</span>
+      <button class="btn-ghost" style="padding:.35rem .8rem" onclick="logout()">Sign out</button>`;
+    $('adminTab').classList.toggle('hidden', state.user.role !== 'Admin');
+    seedDefaultTime();
+    loadTables(); loadMine();
+    if(state.user.role === 'Admin') loadAllReservations();
+  } else {
+    who.innerHTML = '';
+  }
+}
+
+function setTab(name){
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.add('hidden'));
+  $('tab-'+name).classList.remove('hidden');
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  if(name==='mine') loadMine();
+  if(name==='tables') loadTables();
+  if(name==='admin') { loadTables(); loadAllReservations(); }
+}
+
+function seedDefaultTime(){
+  const d = new Date(Date.now() + 24*3600*1000); d.setMinutes(0,0,0);
+  const iso = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  if(!$('autoWhen').value) $('autoWhen').value = iso;
+  if(!$('specWhen').value) $('specWhen').value = iso;
+}
+// datetime-local is local time; the API expects UTC.
+const toUtcIso = local => new Date(local).toISOString();
+
+// ---------- Tables ----------
+async function loadTables(){
+  try{
+    const tables = await call('/api/tables');
+    const sel = $('specTable');
+    sel.innerHTML = tables.filter(t=>t.isActive)
+      .map(t=>`<option value="${t.id}">#${t.tableNumber} &middot; seats ${t.capacity} &middot; ${t.location}</option>`).join('');
+    $('tablesBody').innerHTML = tables.length ? `<table><thead><tr>
+        <th>Table</th><th>Capacity</th><th>Location</th><th>Status</th></tr></thead><tbody>` +
+        tables.map(t=>`<tr><td>#${t.tableNumber}</td><td>${t.capacity}</td><td>${t.location}</td>
+          <td>${t.isActive?'<span class="status Confirmed">Active</span>':'<span class="status Cancelled">Inactive</span>'}</td></tr>`).join('') +
+        `</tbody></table>` : '<p class="empty">No tables yet.</p>';
+  }catch(e){ toast(e.message,'err'); }
+}
+
+async function createTable(){
+  try{
+    const dto = { tableNumber:+$('ntNum').value, capacity:+$('ntCap').value, location:$('ntLoc').value };
+    await call('/api/tables', { method:'POST', body:dto });
+    toast('Table added.'); loadTables();
+  }catch(e){ toast(e.message,'err'); }
+}
+
+// ---------- Reservations ----------
+async function autoReserve(){
+  try{
+    const dto = {
+      reservationStartUtc: toUtcIso($('autoWhen').value),
+      durationMinutes:+$('autoDur').value, partySize:+$('autoParty').value,
+      preferredLocation: $('autoLoc').value || null
+    };
+    const r = await call('/api/reservations/auto', { method:'POST', body:dto });
+    toast('Reserved table #' + r.tableNumber + '.'); loadMine(); setTab('mine');
+  }catch(e){ toast(e.message,'err'); }
+}
+async function reserveSpecific(){
+  try{
+    const dto = {
+      tableId:+$('specTable').value,
+      reservationStartUtc: toUtcIso($('specWhen').value),
+      durationMinutes:+$('specDur').value, partySize:+$('specParty').value
+    };
+    const r = await call('/api/reservations', { method:'POST', body:dto });
+    toast('Reserved table #' + r.tableNumber + '.'); loadMine(); setTab('mine');
+  }catch(e){ toast(e.message,'err'); }
+}
+
+function resTable(rows, showGuest){
+  if(!rows.length) return '<p class="empty">No reservations yet.</p>';
+  const fmt = iso => new Date(iso).toLocaleString([], {dateStyle:'medium', timeStyle:'short'});
+  return `<table><thead><tr>
+    ${showGuest?'<th>Guest</th>':''}<th>Table</th><th>When</th><th>Party</th><th>Status</th><th></th>
+    </tr></thead><tbody>` + rows.map(r=>`<tr>
+      ${showGuest?`<td>${r.customerName}</td>`:''}
+      <td>#${r.tableNumber}</td>
+      <td>${fmt(r.reservationStartUtc)}</td>
+      <td>${r.partySize}</td>
+      <td><span class="status ${r.status}">${r.status}</span></td>
+      <td>${r.status==='Confirmed'||r.status==='Pending'
+        ? `<button class="btn-danger" onclick="cancelRes('${r.id}')">Cancel</button>` : ''}</td>
+    </tr>`).join('') + `</tbody></table>`;
+}
+
+async function loadMine(){
+  try{ $('mineBody').innerHTML = resTable(await call('/api/reservations/mine'), false); }
+  catch(e){ $('mineBody').innerHTML = '<p class="empty">'+e.message+'</p>'; }
+}
+async function loadAllReservations(){
+  try{ $('allResBody').innerHTML = resTable(await call('/api/reservations'), true); }
+  catch(e){ $('allResBody').innerHTML = '<p class="empty">'+e.message+'</p>'; }
+}
+async function cancelRes(id){
+  try{
+    await call('/api/reservations/'+id+'/cancel', { method:'POST' });
+    toast('Reservation cancelled.'); loadMine();
+    if(state.user.role==='Admin') loadAllReservations();
+  }catch(e){ toast(e.message,'err'); }
+}
+
+render();
+</script>
+</body>
+</html>

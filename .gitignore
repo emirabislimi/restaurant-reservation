@@ -1,0 +1,42 @@
+## .NET
+bin/
+obj/
+publish/
+*.user
+*.suo
+.vs/
+.idea/
+*.DotSettings.user
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+artifacts/
+
+## Rider
+*.sln.iml
+
+## VS Code
+.vscode/
+
+## Test results
+TestResults/
+coverage*.xml
+*.coverage
+*.trx
+
+## User-specific / secrets
+appsettings.*.local.json
+secrets.json
+*.env
+
+## OS
+.DS_Store
+Thumbs.db
+
+# SQLite local database files
+*.db
+*.db-shm
+*.db-wal
