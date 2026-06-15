@@ -10,7 +10,7 @@ on:
 env:
   DOTNET_VERSION: '10.0.x'
   # The name of your Azure App Service. Set this to match the resource you create.
-  AZURE_WEBAPP_NAME: restaurant-reservation-api
+  AZURE_WEBAPP_NAME: restaurant-reservation
   API_PROJECT: RestaurantReservation/RestaurantReservation.csproj
 
 jobs:
